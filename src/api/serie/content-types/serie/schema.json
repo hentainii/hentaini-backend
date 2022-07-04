@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "series",
+  "info": {
+    "singularName": "serie",
+    "pluralName": "series",
+    "displayName": "serie",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "title_english": {
+      "type": "string"
+    },
+    "synopsis": {
+      "type": "text"
+    },
+    "censorship": {
+      "type": "boolean"
+    },
+    "next_episode": {
+      "type": "date"
+    },
+    "visits": {
+      "type": "integer"
+    },
+    "featured": {
+      "type": "boolean"
+    },
+    "hasEpisodes": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::status.status",
+      "inversedBy": "series"
+    },
+    "serie_type": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::serie-type.serie-type",
+      "inversedBy": "series"
+    },
+    "images": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::image.image",
+      "inversedBy": "series"
+    },
+    "language": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::language.language",
+      "inversedBy": "series"
+    },
+    "episodes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::episode.episode",
+      "mappedBy": "serie"
+    },
+    "h_id": {
+      "type": "string"
+    },
+    "genres": {
+      "type": "text"
+    },
+    "genreList": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::genre.genre",
+      "inversedBy": "series"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "sbackend-4",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A Strapi application",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@strapi/plugin-graphql": "^4.0.2",
+    "@strapi/plugin-i18n": "4.0.2",
+    "@strapi/plugin-users-permissions": "4.0.2",
+    "@strapi/strapi": "4.0.2",
+    "mysql": "^2.18.1",
+    "sqlite3": "5.0.2"
+  },
+  "author": {
+    "name": "Nikoxx99"
+  },
+  "strapi": {
+    "uuid": "d0e17ac6-408c-4039-99c0-d5501e7af212"
+  },
+  "engines": {
+    "node": ">=12.x.x <=16.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT"
+}
