@@ -25,7 +25,7 @@
       "type": "boolean"
     },
     "next_episode": {
-      "type": "date"
+      "type": "string"
     },
     "visits": {
       "type": "integer"
