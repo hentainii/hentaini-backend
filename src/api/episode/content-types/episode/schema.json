@@ -20,9 +20,9 @@
     },
     "image": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "api::image.image",
-      "inversedBy": "episode"
+      "inversedBy": "episodes"
     },
     "visible": {
       "type": "boolean"

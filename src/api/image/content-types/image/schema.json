@@ -27,9 +27,12 @@
       "target": "api::serie.serie",
       "mappedBy": "images"
     },
-    "episode": {
+    "placeholder": {
+      "type": "string"
+    },
+    "episodes": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "oneToMany",
       "target": "api::episode.episode",
       "mappedBy": "image"
     }
