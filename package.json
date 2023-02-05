@@ -11,10 +11,9 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "@strapi/plugin-graphql": "4.4.3",
-    "@strapi/plugin-i18n": "4.4.3",
-    "@strapi/plugin-users-permissions": "4.4.3",
-    "@strapi/strapi": "4.4.3",
+    "@strapi/plugin-graphql": "4.6.0",
+    "@strapi/plugin-users-permissions": "4.6.0",
+    "@strapi/strapi": "4.6.0",
     "mysql": "^2.18.1",
     "sqlite3": "5.0.2",
     "strapi-plugin-transformer": "^2.0.2"
