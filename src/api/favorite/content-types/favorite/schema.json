@@ -17,7 +17,7 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "favorites"
     },
-    "series": {
+    "serie": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::serie.serie",

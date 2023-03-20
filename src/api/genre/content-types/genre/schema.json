@@ -21,7 +21,7 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::serie.serie",
-      "inversedBy": "genreList"
+      "mappedBy": "genreList"
     }
   }
 }
