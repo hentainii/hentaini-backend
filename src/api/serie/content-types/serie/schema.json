@@ -77,6 +77,12 @@
       "relation": "manyToMany",
       "target": "api::genre.genre",
       "inversedBy": "series"
+    },
+    "favorites": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::favorite.favorite",
+      "mappedBy": "series"
     }
   }
 }

@@ -66,6 +66,12 @@
     "level": {
       "type": "integer",
       "default": 1
+    },
+    "favorites": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::favorite.favorite",
+      "mappedBy": "user"
     }
   }
 }
