@@ -11,12 +11,16 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "@strapi/plugin-graphql": "4.6.0",
-    "@strapi/plugin-users-permissions": "4.6.0",
-    "@strapi/strapi": "4.6.0",
+    "@strapi/plugin-graphql": "4.15.5",
+    "@strapi/plugin-users-permissions": "4.15.5",
+    "@strapi/strapi": "4.15.5",
     "mysql": "^2.18.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^5.2.0",
     "sqlite3": "5.0.2",
-    "strapi-plugin-transformer": "^2.0.2"
+    "strapi-plugin-transformer": "3.1.2",
+    "styled-components": "^5.2.1"
   },
   "author": {
     "name": "Nikoxx99"
@@ -25,7 +29,7 @@
     "uuid": "d0e17ac6-408c-4039-99c0-d5501e7af212"
   },
   "engines": {
-    "node": ">=12.x.x <=16.x.x",
+    "node": ">=12.x.x <=18.x.x",
     "npm": ">=6.0.0"
   },
   "license": "MIT"

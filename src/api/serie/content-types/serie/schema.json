@@ -83,6 +83,9 @@
       "relation": "oneToMany",
       "target": "api::favorite.favorite",
       "mappedBy": "serie"
+    },
+    "url": {
+      "type": "string"
     }
   }
 }
