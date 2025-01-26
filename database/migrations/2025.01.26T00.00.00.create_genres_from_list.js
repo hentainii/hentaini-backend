@@ -43,11 +43,22 @@ async function up(knex) {
         genre = { id: genreId };
       }
 
-      // 4. Insertar la relación en la tabla "series_genre_list_links"
-      await knex(seriesGenreLinksTable).insert({
-        serie_id: serie.id,
-        genre_id: genre.id
-      });
+      // 4. Verificar si la relación ya existe en "series_genre_list_links"
+      const existingRelation = await knex(seriesGenreLinksTable)
+        .where({
+          serie_id: serie.id,
+          genre_id: genre.id,
+        })
+        .first();
+
+      if (!existingRelation) {
+        // 5. Insertar la relación en la tabla "series_genre_list_links" solo si no existe
+        await knex(seriesGenreLinksTable).insert({
+          serie_id: serie.id,
+          genre_id: genre.id,
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
     }
   }
 }
