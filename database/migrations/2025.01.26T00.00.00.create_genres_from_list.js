@@ -47,7 +47,7 @@ async function up(knex) {
       const existingRelation = await knex(seriesGenreLinksTable)
         .where({
           serie_id: serie.id,
-          genre_id: genre.id,
+          genre_id: genre.id
         })
         .first();
 
@@ -55,9 +55,7 @@ async function up(knex) {
         // 5. Insertar la relación en la tabla "series_genre_list_links" solo si no existe
         await knex(seriesGenreLinksTable).insert({
           serie_id: serie.id,
-          genre_id: genre.id,
-          created_at: new Date(),
-          updated_at: new Date(),
+          genre_id: genre.id
         });
       }
     }
