@@ -38,6 +38,9 @@
     },
     "downloads": {
       "type": "text"
+    },
+    "isNew": {
+      "type": "boolean"
     }
   }
 }

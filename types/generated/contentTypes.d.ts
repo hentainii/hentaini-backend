@@ -704,6 +704,7 @@ export interface ApiEpisodeEpisode extends Schema.CollectionType {
     >;
     players: Attribute.Text;
     downloads: Attribute.Text;
+    isNew: Attribute.Boolean;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
