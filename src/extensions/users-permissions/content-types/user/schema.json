@@ -72,6 +72,12 @@
       "relation": "oneToMany",
       "target": "api::favorite.favorite",
       "mappedBy": "user"
+    },
+    "watchlaters": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::watchlater.watchlater",
+      "mappedBy": "user"
     }
   }
 }

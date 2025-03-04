@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "watchlaters",
+  "info": {
+    "singularName": "watchlater",
+    "pluralName": "watchlaters",
+    "displayName": "watchlater",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "watchlaters"
+    },
+    "serie": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::serie.serie",
+      "inversedBy": "watchlaters"
+    },
+    "episode_number": {
+      "type": "integer"
+    }
+  }
+}
