@@ -735,6 +735,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::watchlater.watchlater'
     >;
+    reports: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::report.report'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -818,6 +823,11 @@ export interface ApiEpisodeEpisode extends Schema.CollectionType {
     players: Attribute.Text;
     downloads: Attribute.Text;
     isNew: Attribute.Boolean;
+    reports: Attribute.Relation<
+      'api::episode.episode',
+      'oneToMany',
+      'api::report.report'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1092,6 +1102,49 @@ export interface ApiRatingRating extends Schema.CollectionType {
   };
 }
 
+export interface ApiReportReport extends Schema.CollectionType {
+  collectionName: 'reports';
+  info: {
+    singularName: 'report';
+    pluralName: 'reports';
+    displayName: 'report';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    reason: Attribute.String;
+    details: Attribute.String;
+    episode: Attribute.Relation<
+      'api::report.report',
+      'manyToOne',
+      'api::episode.episode'
+    >;
+    user: Attribute.Relation<
+      'api::report.report',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    fixed: Attribute.Boolean & Attribute.DefaultTo<false>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::report.report',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::report.report',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiRrssRrss extends Schema.CollectionType {
   collectionName: 'rrsses';
   info: {
@@ -1334,6 +1387,7 @@ declare module '@strapi/types' {
       'api::language.language': ApiLanguageLanguage;
       'api::player.player': ApiPlayerPlayer;
       'api::rating.rating': ApiRatingRating;
+      'api::report.report': ApiReportReport;
       'api::rrss.rrss': ApiRrssRrss;
       'api::serie.serie': ApiSerieSerie;
       'api::serie-type.serie-type': ApiSerieTypeSerieType;

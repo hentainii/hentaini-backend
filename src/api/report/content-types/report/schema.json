@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "reports",
+  "info": {
+    "singularName": "report",
+    "pluralName": "reports",
+    "displayName": "report",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "reason": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string"
+    },
+    "episode": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::episode.episode",
+      "inversedBy": "reports"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "reports"
+    },
+    "fixed": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

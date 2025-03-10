@@ -41,6 +41,12 @@
     },
     "isNew": {
       "type": "boolean"
+    },
+    "reports": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::report.report",
+      "mappedBy": "episode"
     }
   }
 }

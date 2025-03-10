@@ -78,6 +78,12 @@
       "relation": "oneToMany",
       "target": "api::watchlater.watchlater",
       "mappedBy": "user"
+    },
+    "reports": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::report.report",
+      "mappedBy": "user"
     }
   }
 }
