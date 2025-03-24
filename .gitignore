@@ -115,3 +115,5 @@ build
 
 public/cdn/*
 yarn.lock
+
+.github/*
