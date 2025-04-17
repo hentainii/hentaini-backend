@@ -1232,6 +1232,11 @@ export interface ApiSerieSerie extends Schema.CollectionType {
       'oneToMany',
       'api::watchlater.watchlater'
     >;
+    studio: Attribute.Relation<
+      'api::serie.serie',
+      'manyToOne',
+      'api::studio.studio'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1320,6 +1325,41 @@ export interface ApiStatusStatus extends Schema.CollectionType {
   };
 }
 
+export interface ApiStudioStudio extends Schema.CollectionType {
+  collectionName: 'studios';
+  info: {
+    singularName: 'studio';
+    pluralName: 'studios';
+    displayName: 'studio';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    series: Attribute.Relation<
+      'api::studio.studio',
+      'oneToMany',
+      'api::serie.serie'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::studio.studio',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::studio.studio',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiWatchlaterWatchlater extends Schema.CollectionType {
   collectionName: 'watchlaters';
   info: {
@@ -1392,6 +1432,7 @@ declare module '@strapi/types' {
       'api::serie.serie': ApiSerieSerie;
       'api::serie-type.serie-type': ApiSerieTypeSerieType;
       'api::status.status': ApiStatusStatus;
+      'api::studio.studio': ApiStudioStudio;
       'api::watchlater.watchlater': ApiWatchlaterWatchlater;
     }
   }

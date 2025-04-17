@@ -92,6 +92,12 @@
       "relation": "oneToMany",
       "target": "api::watchlater.watchlater",
       "mappedBy": "serie"
+    },
+    "studio": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::studio.studio",
+      "inversedBy": "series"
     }
   }
 }
