@@ -98,6 +98,12 @@
       "relation": "manyToOne",
       "target": "api::studio.studio",
       "inversedBy": "series"
+    },
+    "producer": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::producer.producer",
+      "inversedBy": "series"
     }
   }
 }

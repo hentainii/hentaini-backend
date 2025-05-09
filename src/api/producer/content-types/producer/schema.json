@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "producers",
+  "info": {
+    "singularName": "producer",
+    "pluralName": "producers",
+    "displayName": "producer"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "series": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::serie.serie",
+      "mappedBy": "producer"
+    }
+  }
+}

@@ -1072,6 +1072,41 @@ export interface ApiPlayerPlayer extends Schema.CollectionType {
   };
 }
 
+export interface ApiProducerProducer extends Schema.CollectionType {
+  collectionName: 'producers';
+  info: {
+    singularName: 'producer';
+    pluralName: 'producers';
+    displayName: 'producer';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    series: Attribute.Relation<
+      'api::producer.producer',
+      'oneToMany',
+      'api::serie.serie'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::producer.producer',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::producer.producer',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiRatingRating extends Schema.CollectionType {
   collectionName: 'ratings';
   info: {
@@ -1236,6 +1271,11 @@ export interface ApiSerieSerie extends Schema.CollectionType {
       'api::serie.serie',
       'manyToOne',
       'api::studio.studio'
+    >;
+    producer: Attribute.Relation<
+      'api::serie.serie',
+      'manyToOne',
+      'api::producer.producer'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1426,6 +1466,7 @@ declare module '@strapi/types' {
       'api::image-type.image-type': ApiImageTypeImageType;
       'api::language.language': ApiLanguageLanguage;
       'api::player.player': ApiPlayerPlayer;
+      'api::producer.producer': ApiProducerProducer;
       'api::rating.rating': ApiRatingRating;
       'api::report.report': ApiReportReport;
       'api::rrss.rrss': ApiRrssRrss;
