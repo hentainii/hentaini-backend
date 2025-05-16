@@ -20,6 +20,10 @@
     },
     "player_code": {
       "type": "string"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
     }
   }
 }

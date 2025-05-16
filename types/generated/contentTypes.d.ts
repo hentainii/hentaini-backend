@@ -1054,6 +1054,7 @@ export interface ApiPlayerPlayer extends Schema.CollectionType {
     name: Attribute.String;
     short_name: Attribute.String;
     player_code: Attribute.String;
+    active: Attribute.Boolean & Attribute.DefaultTo<true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
