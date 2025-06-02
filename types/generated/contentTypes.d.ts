@@ -740,6 +740,16 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::report.report'
     >;
+    comments: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::comment.comment'
+    >;
+    likes: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'api::comment.comment'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -788,6 +798,62 @@ export interface ApiCategoryCategory extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::category.category',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiCommentComment extends Schema.CollectionType {
+  collectionName: 'comments';
+  info: {
+    singularName: 'comment';
+    pluralName: 'comments';
+    displayName: 'comment';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Attribute.Text;
+    comment_type: Attribute.String;
+    content_id: Attribute.Integer;
+    author: Attribute.Relation<
+      'api::comment.comment',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    likes: Attribute.Integer;
+    liked_by: Attribute.Relation<
+      'api::comment.comment',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    is_edited: Attribute.Boolean;
+    is_deleted: Attribute.Boolean;
+    parent: Attribute.Relation<
+      'api::comment.comment',
+      'oneToMany',
+      'api::comment.comment'
+    >;
+    reply: Attribute.Relation<
+      'api::comment.comment',
+      'manyToOne',
+      'api::comment.comment'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::comment.comment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::comment.comment',
       'oneToOne',
       'admin::user'
     > &
@@ -1460,6 +1526,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::category.category': ApiCategoryCategory;
+      'api::comment.comment': ApiCommentComment;
       'api::episode.episode': ApiEpisodeEpisode;
       'api::favorite.favorite': ApiFavoriteFavorite;
       'api::genre.genre': ApiGenreGenre;

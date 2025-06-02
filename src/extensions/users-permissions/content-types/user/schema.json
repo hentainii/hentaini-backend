@@ -84,6 +84,18 @@
       "relation": "oneToMany",
       "target": "api::report.report",
       "mappedBy": "user"
+    },
+    "comments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comment.comment",
+      "mappedBy": "author"
+    },
+    "likes": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::comment.comment",
+      "mappedBy": "liked_by"
     }
   }
 }
