@@ -767,6 +767,44 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
+export interface ApiAccountAccount extends Schema.CollectionType {
+  collectionName: 'accounts';
+  info: {
+    singularName: 'account';
+    pluralName: 'accounts';
+    displayName: 'account';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    player: Attribute.Relation<
+      'api::account.account',
+      'manyToOne',
+      'api::player.player'
+    >;
+    api_key: Attribute.String;
+    username: Attribute.String;
+    password: Attribute.String;
+    up_available: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::account.account',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::account.account',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiCategoryCategory extends Schema.CollectionType {
   collectionName: 'categories';
   info: {
@@ -1121,6 +1159,11 @@ export interface ApiPlayerPlayer extends Schema.CollectionType {
     short_name: Attribute.String;
     player_code: Attribute.String;
     active: Attribute.Boolean & Attribute.DefaultTo<true>;
+    accounts: Attribute.Relation<
+      'api::player.player',
+      'oneToMany',
+      'api::account.account'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1145,6 +1188,7 @@ export interface ApiProducerProducer extends Schema.CollectionType {
     singularName: 'producer';
     pluralName: 'producers';
     displayName: 'producer';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -1155,6 +1199,11 @@ export interface ApiProducerProducer extends Schema.CollectionType {
       'api::producer.producer',
       'oneToMany',
       'api::serie.serie'
+    >;
+    studios: Attribute.Relation<
+      'api::producer.producer',
+      'manyToMany',
+      'api::studio.studio'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1449,6 +1498,11 @@ export interface ApiStudioStudio extends Schema.CollectionType {
       'oneToMany',
       'api::serie.serie'
     >;
+    producers: Attribute.Relation<
+      'api::studio.studio',
+      'manyToMany',
+      'api::producer.producer'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1525,6 +1579,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'api::account.account': ApiAccountAccount;
       'api::category.category': ApiCategoryCategory;
       'api::comment.comment': ApiCommentComment;
       'api::episode.episode': ApiEpisodeEpisode;

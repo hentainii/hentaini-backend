@@ -18,6 +18,12 @@
       "relation": "oneToMany",
       "target": "api::serie.serie",
       "mappedBy": "studio"
+    },
+    "producers": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::producer.producer",
+      "mappedBy": "studios"
     }
   }
 }

@@ -24,6 +24,12 @@
     "active": {
       "type": "boolean",
       "default": true
+    },
+    "accounts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::account.account",
+      "mappedBy": "player"
     }
   }
 }
