@@ -750,6 +750,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToMany',
       'api::comment.comment'
     >;
+    reactions: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::reaction.reaction'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1253,6 +1258,46 @@ export interface ApiRatingRating extends Schema.CollectionType {
   };
 }
 
+export interface ApiReactionReaction extends Schema.CollectionType {
+  collectionName: 'reactions';
+  info: {
+    singularName: 'reaction';
+    pluralName: 'reactions';
+    displayName: 'reaction';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    reaction_type: Attribute.Enumeration<
+      ['like', 'love', 'wow', 'dislike', 'sad']
+    >;
+    entity_type: Attribute.String;
+    content_id: Attribute.Integer;
+    user: Attribute.Relation<
+      'api::reaction.reaction',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::reaction.reaction',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::reaction.reaction',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiReportReport extends Schema.CollectionType {
   collectionName: 'reports';
   info: {
@@ -1591,6 +1636,7 @@ declare module '@strapi/types' {
       'api::player.player': ApiPlayerPlayer;
       'api::producer.producer': ApiProducerProducer;
       'api::rating.rating': ApiRatingRating;
+      'api::reaction.reaction': ApiReactionReaction;
       'api::report.report': ApiReportReport;
       'api::rrss.rrss': ApiRrssRrss;
       'api::serie.serie': ApiSerieSerie;

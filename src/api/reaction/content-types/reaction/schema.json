@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "reactions",
+  "info": {
+    "singularName": "reaction",
+    "pluralName": "reactions",
+    "displayName": "reaction",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "reaction_type": {
+      "type": "enumeration",
+      "enum": [
+        "like",
+        "love",
+        "wow",
+        "dislike",
+        "sad"
+      ]
+    },
+    "entity_type": {
+      "type": "string"
+    },
+    "content_id": {
+      "type": "integer"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "reactions"
+    }
+  }
+}

@@ -96,6 +96,12 @@
       "relation": "manyToMany",
       "target": "api::comment.comment",
       "mappedBy": "liked_by"
+    },
+    "reactions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::reaction.reaction",
+      "mappedBy": "user"
     }
   }
 }
