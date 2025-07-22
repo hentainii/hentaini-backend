@@ -778,6 +778,7 @@ export interface ApiAccountAccount extends Schema.CollectionType {
     singularName: 'account';
     pluralName: 'accounts';
     displayName: 'account';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -792,6 +793,7 @@ export interface ApiAccountAccount extends Schema.CollectionType {
     username: Attribute.String;
     password: Attribute.String;
     up_available: Attribute.String;
+    email: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -936,6 +938,11 @@ export interface ApiEpisodeEpisode extends Schema.CollectionType {
       'api::episode.episode',
       'oneToMany',
       'api::report.report'
+    >;
+    uploader_sessions: Attribute.Relation<
+      'api::episode.episode',
+      'oneToMany',
+      'api::uploader-session.uploader-session'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1169,6 +1176,7 @@ export interface ApiPlayerPlayer extends Schema.CollectionType {
       'oneToMany',
       'api::account.account'
     >;
+    up_available: Attribute.Boolean;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1566,6 +1574,48 @@ export interface ApiStudioStudio extends Schema.CollectionType {
   };
 }
 
+export interface ApiUploaderSessionUploaderSession
+  extends Schema.CollectionType {
+  collectionName: 'uploader_sessions';
+  info: {
+    singularName: 'uploader-session';
+    pluralName: 'uploader-sessions';
+    displayName: 'uploader_session';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    episode: Attribute.Relation<
+      'api::uploader-session.uploader-session',
+      'manyToOne',
+      'api::episode.episode'
+    >;
+    file_name: Attribute.String;
+    status: Attribute.Enumeration<
+      ['pending', 'uploading', 'finished', 'failed']
+    > &
+      Attribute.DefaultTo<'pending'>;
+    services: Attribute.JSON;
+    started_at: Attribute.DateTime;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::uploader-session.uploader-session',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::uploader-session.uploader-session',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiWatchlaterWatchlater extends Schema.CollectionType {
   collectionName: 'watchlaters';
   info: {
@@ -1643,6 +1693,7 @@ declare module '@strapi/types' {
       'api::serie-type.serie-type': ApiSerieTypeSerieType;
       'api::status.status': ApiStatusStatus;
       'api::studio.studio': ApiStudioStudio;
+      'api::uploader-session.uploader-session': ApiUploaderSessionUploaderSession;
       'api::watchlater.watchlater': ApiWatchlaterWatchlater;
     }
   }

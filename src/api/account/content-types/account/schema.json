@@ -4,7 +4,8 @@
   "info": {
     "singularName": "account",
     "pluralName": "accounts",
-    "displayName": "account"
+    "displayName": "account",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -26,6 +27,9 @@
       "type": "string"
     },
     "up_available": {
+      "type": "string"
+    },
+    "email": {
       "type": "string"
     }
   }

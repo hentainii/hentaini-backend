@@ -30,6 +30,9 @@
       "relation": "oneToMany",
       "target": "api::account.account",
       "mappedBy": "player"
+    },
+    "up_available": {
+      "type": "boolean"
     }
   }
 }

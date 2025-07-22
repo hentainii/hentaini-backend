@@ -104,6 +104,12 @@
       "relation": "manyToOne",
       "target": "api::producer.producer",
       "inversedBy": "series"
+    },
+    "uploader_sessions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::uploader-session.uploader-session",
+      "mappedBy": "serie"
     }
   }
 }

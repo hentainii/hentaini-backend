@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "uploader_sessions",
+  "info": {
+    "singularName": "uploader-session",
+    "pluralName": "uploader-sessions",
+    "displayName": "uploader_session",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "episode": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::episode.episode",
+      "inversedBy": "uploader_sessions"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "uploading",
+        "finished",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "services": {
+      "type": "json"
+    },
+    "started_at": {
+      "type": "datetime"
+    },
+    "serie": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::serie.serie",
+      "inversedBy": "uploader_sessions"
+    }
+  }
+}
