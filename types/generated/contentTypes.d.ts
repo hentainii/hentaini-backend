@@ -939,11 +939,6 @@ export interface ApiEpisodeEpisode extends Schema.CollectionType {
       'oneToMany',
       'api::report.report'
     >;
-    uploader_sessions: Attribute.Relation<
-      'api::episode.episode',
-      'oneToMany',
-      'api::uploader-session.uploader-session'
-    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1446,6 +1441,11 @@ export interface ApiSerieSerie extends Schema.CollectionType {
       'manyToOne',
       'api::producer.producer'
     >;
+    uploader_sessions: Attribute.Relation<
+      'api::serie.serie',
+      'oneToMany',
+      'api::uploader-session.uploader-session'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1581,16 +1581,12 @@ export interface ApiUploaderSessionUploaderSession
     singularName: 'uploader-session';
     pluralName: 'uploader-sessions';
     displayName: 'uploader_session';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    episode: Attribute.Relation<
-      'api::uploader-session.uploader-session',
-      'manyToOne',
-      'api::episode.episode'
-    >;
     file_name: Attribute.String;
     status: Attribute.Enumeration<
       ['pending', 'uploading', 'finished', 'failed']
@@ -1598,6 +1594,12 @@ export interface ApiUploaderSessionUploaderSession
       Attribute.DefaultTo<'pending'>;
     services: Attribute.JSON;
     started_at: Attribute.DateTime;
+    serie: Attribute.Relation<
+      'api::uploader-session.uploader-session',
+      'manyToOne',
+      'api::serie.serie'
+    >;
+    episode: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

@@ -47,12 +47,6 @@
       "relation": "oneToMany",
       "target": "api::report.report",
       "mappedBy": "episode"
-    },
-    "uploader_sessions": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::uploader-session.uploader-session",
-      "mappedBy": "episode"
     }
   }
 }

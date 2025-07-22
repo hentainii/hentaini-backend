@@ -11,12 +11,6 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "episode": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::episode.episode",
-      "inversedBy": "uploader_sessions"
-    },
     "file_name": {
       "type": "string"
     },
@@ -41,6 +35,9 @@
       "relation": "manyToOne",
       "target": "api::serie.serie",
       "inversedBy": "uploader_sessions"
+    },
+    "episode": {
+      "type": "integer"
     }
   }
 }
