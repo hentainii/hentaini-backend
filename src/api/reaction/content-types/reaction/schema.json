@@ -16,9 +16,9 @@
       "enum": [
         "like",
         "love",
+        "funny",
         "wow",
-        "dislike",
-        "sad"
+        "mad"
       ]
     },
     "entity_type": {

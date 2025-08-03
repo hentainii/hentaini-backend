@@ -1274,7 +1274,7 @@ export interface ApiReactionReaction extends Schema.CollectionType {
   };
   attributes: {
     reaction_type: Attribute.Enumeration<
-      ['like', 'love', 'wow', 'dislike', 'sad']
+      ['like', 'love', 'funny', 'wow', 'mad']
     >;
     entity_type: Attribute.String;
     content_id: Attribute.Integer;
