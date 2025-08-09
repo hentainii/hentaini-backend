@@ -1236,16 +1236,36 @@ export interface ApiRatingRating extends Schema.CollectionType {
   info: {
     singularName: 'rating';
     pluralName: 'ratings';
-    displayName: 'rating';
+    displayName: 'ratings';
+    description: 'Ratings de usuarios para series';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
-    value: Attribute.Integer;
+    rating: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          min: 1;
+          max: 5;
+        },
+        number
+      >;
+    user: Attribute.Relation<
+      'api::rating.rating',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    > &
+      Attribute.Required;
+    serie: Attribute.Relation<
+      'api::rating.rating',
+      'manyToOne',
+      'api::serie.serie'
+    > &
+      Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::rating.rating',
       'oneToOne',

@@ -4,15 +4,31 @@
   "info": {
     "singularName": "rating",
     "pluralName": "ratings",
-    "displayName": "rating"
+    "displayName": "ratings",
+    "description": "Ratings de usuarios para series"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
-    "value": {
-      "type": "integer"
+    "rating": {
+      "type": "integer",
+      "required": true,
+      "min": 1,
+      "max": 5
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "required": true
+    },
+    "serie": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::serie.serie",
+      "required": true
     }
   }
 }
