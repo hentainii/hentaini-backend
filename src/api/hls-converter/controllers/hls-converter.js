@@ -133,6 +133,9 @@ module.exports = {
     let tempDir;
     
     try {
+      // Limpiar carpeta temp/hls antes de iniciar conversión
+      await this.cleanupTempHLSFolder();
+      
       // Crear directorio temporal usando el servicio
       tempDir = hlsService.createTempDirectory(jobId);
       this.updateStatus(jobId, 'procesando', 5, 'Preparando archivos...');
@@ -296,6 +299,42 @@ module.exports = {
        }
      }
    },
+
+  /**
+   * Limpiar carpeta temp/hls antes de cada conversión
+   */
+  async cleanupTempHLSFolder() {
+    try {
+      const tempHLSPath = path.join(process.cwd(), 'public', 'temp', 'hls');
+      
+      if (fs.existsSync(tempHLSPath)) {
+        console.log('Limpiando carpeta temp/hls antes de nueva conversión...');
+        
+        // Leer contenido de la carpeta
+        const files = fs.readdirSync(tempHLSPath);
+        
+        if (files.length > 0) {
+          console.log(`Eliminando ${files.length} archivos/carpetas de temp/hls`);
+          
+          // Eliminar cada archivo/carpeta
+          for (const file of files) {
+            const filePath = path.join(tempHLSPath, file);
+            fs.rmSync(filePath, { recursive: true, force: true });
+          }
+          
+          console.log('Carpeta temp/hls limpiada exitosamente');
+        } else {
+          console.log('Carpeta temp/hls ya está vacía');
+        }
+      } else {
+        console.log('Carpeta temp/hls no existe, creándola...');
+        fs.mkdirSync(tempHLSPath, { recursive: true });
+      }
+    } catch (error) {
+      console.error('Error limpiando carpeta temp/hls:', error);
+      // No lanzar error para no interrumpir la conversión
+    }
+  },
 
   /**
    * Limpiar archivos temporales

@@ -113,23 +113,15 @@ module.exports = {
 
     // Configuración basada en resolución
     let settings = {
-      segmentTime: 10, // 10 segundos por segmento
+      segmentTime: 9, // 9 segundos por segmento
       videoCodec: 'libx264',
       audioCodec: 'aac',
-      preset: 'medium'
+      preset: 'ultrafast'
     };
 
-    // Ajustar calidad según resolución
-    if (width >= 1920) {
-      settings.videoBitrate = '5000k';
-      settings.audioBitrate = '192k';
-    } else if (width >= 1280) {
-      settings.videoBitrate = '3000k';
-      settings.audioBitrate = '128k';
-    } else {
-      settings.videoBitrate = '1500k';
-      settings.audioBitrate = '96k';
-    }
+    // Ajustar calidad fija
+    settings.videoBitrate = '2500k';
+    settings.audioBitrate = '96k';
 
     return settings;
   },
