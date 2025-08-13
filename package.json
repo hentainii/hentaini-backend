@@ -10,6 +10,7 @@
     "strapi": "strapi"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.864.0",
     "@strapi/plugin-graphql": "4.25.9",
     "@strapi/plugin-users-permissions": "4.25.9",
     "@strapi/strapi": "4.25.9",
@@ -19,7 +20,8 @@
     "react-router-dom": "^5.2.0",
     "sqlite3": "^5.1.7",
     "strapi-plugin-transformer": "3.1.2",
-    "styled-components": "^5.2.1"
+    "styled-components": "^5.2.1",
+    "uuid": "^11.1.0"
   },
   "author": {
     "name": "Nikoxx99"
