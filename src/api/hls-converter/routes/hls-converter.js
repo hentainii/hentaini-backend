@@ -19,6 +19,15 @@ module.exports = {
         policies: [],
         middlewares: []
       }
+    },
+    {
+      method: 'POST',
+      path: '/hls-converter/cancel/:jobId',
+      handler: 'hls-converter.cancelConversion',
+      config: {
+        policies: [],
+        middlewares: []
+      }
     }
   ]
 };

@@ -196,6 +196,12 @@ module.exports = {
 
       const ffmpeg = spawn('ffmpeg', args);
       let errorOutput = '';
+      
+      // Almacenar referencia del proceso FFmpeg en el job para poder cancelarlo
+      const job = conversionJobs.get(jobId);
+      if (job) {
+        job.ffmpegProcess = ffmpeg;
+      }
 
       ffmpeg.stderr.on('data', (data) => {
         const output = data.toString();
@@ -346,6 +352,70 @@ module.exports = {
       }
     } catch (error) {
       strapi.log.error('Error limpiando archivos temporales:', error);
+    }
+  },
+
+  /**
+   * Cancelar conversión HLS activa
+   * POST /api/hls-converter/cancel/:jobId
+   */
+  async cancelConversion(ctx) {
+    try {
+      const { jobId } = ctx.params;
+      
+      // Buscar el trabajo en el Map
+      const job = conversionJobs.get(jobId);
+      
+      if (!job) {
+        return ctx.notFound({
+          success: false,
+          message: 'Trabajo no encontrado'
+        });
+      }
+      
+      // Verificar si el trabajo está en progreso
+      if (job.status === 'completado' || job.status === 'error' || job.status === 'cancelado') {
+        return ctx.badRequest({
+          success: false,
+          message: `No se puede cancelar un trabajo con estado: ${job.status}`
+        });
+      }
+      
+      // Terminar proceso FFmpeg si existe
+      if (job.ffmpegProcess && !job.ffmpegProcess.killed) {
+        console.log(`Terminando proceso FFmpeg para trabajo ${jobId}`);
+        
+        // Marcar trabajo como cancelado ANTES de terminar el proceso
+        this.updateStatus(jobId, 'cancelado', 0, 'Conversión cancelada por el usuario');
+        
+        // Usar SIGKILL inmediatamente para terminación forzada
+        job.ffmpegProcess.kill('SIGKILL');
+        
+        // Limpiar la referencia del proceso
+        job.ffmpegProcess = null;
+        
+        console.log(`Proceso FFmpeg terminado con SIGKILL para trabajo ${jobId}`);
+      }
+      
+      // Limpiar archivos temporales de la carpeta public/temp/hls
+      await this.cleanupTempHLSFolder();
+      
+      console.log(`Trabajo HLS ${jobId} cancelado exitosamente`);
+      
+      ctx.send({
+        success: true,
+        message: 'Conversión cancelada exitosamente',
+        jobId: jobId,
+        status: 'cancelado'
+      });
+      
+    } catch (error) {
+      console.error('Error cancelando conversión HLS:', error);
+      ctx.internalServerError({
+        success: false,
+        message: 'Error interno del servidor al cancelar la conversión',
+        error: error.message
+      });
     }
   }
 };
