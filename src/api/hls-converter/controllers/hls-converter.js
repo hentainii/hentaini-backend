@@ -118,6 +118,7 @@ module.exports = {
           message: job.message,
           playlistUrl: job.playlistUrl || null,
           error: job.error || null,
+          hlsCode: job.hlsCode || null,
           createdAt: job.createdAt,
           updatedAt: job.updatedAt,
           completedAt: job.completedAt || null
