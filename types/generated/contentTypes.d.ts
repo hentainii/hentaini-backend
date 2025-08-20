@@ -1062,6 +1062,7 @@ export interface ApiImageImage extends Schema.CollectionType {
       'oneToMany',
       'api::episode.episode'
     >;
+    cf_path: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

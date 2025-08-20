@@ -35,6 +35,9 @@
       "relation": "oneToMany",
       "target": "api::episode.episode",
       "mappedBy": "image"
+    },
+    "cf_path": {
+      "type": "string"
     }
   }
 }
