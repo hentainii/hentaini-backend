@@ -123,6 +123,8 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
 
       const data = await response.json();
 
+      console.log(data)
+
       if (data.success) {
         return {
           cf_path: data.result.variants[0],
@@ -151,7 +153,7 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
       }
 
       // Construir URL completa
-      const fullUrl = `https://admin.hentaini.com/uploads/${image.path}`;
+      const fullUrl = `${process.env.STRAPI_CDN_ENDPOINT}${image.path}`;
       
       // Subir a Cloudflare
       const result = await this.uploadToCloudflare(fullUrl);
@@ -302,6 +304,46 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
       return result;
     } catch (error) {
       throw new Error(`Failed to retry migration for image ${imageId}: ${error.message}`);
+    }
+  },
+
+  // Crear imagen con subida automática a Cloudflare (siempre mantiene local como fallback)
+  async createImageWithCloudflare(imageData) {
+    try {
+      // Primero crear la imagen en la base de datos (esto ya la guarda localmente)
+      const createdImage = await strapi.entityService.create('api::image.image', {
+        data: {
+          ...imageData,
+          publishedAt: Date.now()
+        }
+      });
+      const image = await strapi.entityService.findOne('api::image.image', createdImage.id);
+      // La imagen ya está guardada localmente, ahora intentar subirla también a Cloudflare
+      if (image.path) {
+        try {
+          const fullUrl = `${process.env.STRAPI_CDN_ENDPOINT}${image.path}`;
+          console.log(fullUrl)
+          const cloudflareResult = await this.uploadToCloudflare(fullUrl);
+          
+          // Actualizar la imagen con los datos de Cloudflare (manteniendo el path local)
+          const updatedImage = await strapi.entityService.update('api::image.image', image.id, {
+            data: {
+              cf_path: cloudflareResult.cf_path,
+              cloudflare_id: cloudflareResult.cloudflare_id
+            }
+          });
+          
+          strapi.log.info(`Image ${image.id} uploaded successfully to both local and Cloudflare`);
+          return { ...updatedImage, cloudflare_uploaded: true };
+        } catch (cloudflareError) {
+          strapi.log.warn(`Image ${image.id} saved locally but failed to upload to Cloudflare: ${cloudflareError.message}`);
+          return { ...image, cloudflare_uploaded: false, cloudflare_error: cloudflareError.message };
+        }
+      }
+      
+      return { ...image, cloudflare_uploaded: false };
+    } catch (error) {
+      throw new Error(`Failed to create image: ${error.message}`);
     }
   }
 }));

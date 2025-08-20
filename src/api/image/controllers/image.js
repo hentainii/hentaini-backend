@@ -109,5 +109,21 @@ module.exports = createCoreController('api::image.image', ({ strapi }) => ({
     } catch (error) {
       ctx.throw(500, `Error retrying image migration: ${error.message}`);
     }
+  },
+
+  // Crear imagen con subida automática a Cloudflare
+  async createWithCloudflare(ctx) {
+    try {
+      const { data } = ctx.request.body;
+      const result = await strapi.service('api::image.image').createImageWithCloudflare(data);
+      
+      ctx.body = {
+        success: true,
+        data: result,
+        message: 'Image created and uploaded to Cloudflare successfully'
+      };
+    } catch (error) {
+      ctx.throw(500, `Error creating image with Cloudflare: ${error.message}`);
+    }
   }
 }));
