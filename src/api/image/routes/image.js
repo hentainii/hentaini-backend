@@ -6,7 +6,7 @@
 
 const { createCoreRouter } = require('@strapi/strapi').factories;
 
-module.exports = {
+module.exports = createCoreRouter('api::image.image', {
   routes: [ 
     // Rutas personalizadas para migración
     {
@@ -64,4 +64,4 @@ module.exports = {
       },
     },
   ],
-};
+});

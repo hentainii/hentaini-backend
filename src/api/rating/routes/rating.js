@@ -6,7 +6,7 @@
 
 const { createCoreRouter } = require('@strapi/strapi').factories;
 
-module.exports = {
+module.exports = createCoreRouter('api::rating.rating', {
   routes: [
     // Rutas personalizadas para serie ratings
     {
@@ -28,4 +28,4 @@ module.exports = {
       },
     },
   ],
-};
+});
