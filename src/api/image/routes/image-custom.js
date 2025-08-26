@@ -72,6 +72,15 @@ module.exports =  {
         policies: [],
         middlewares: [],
       },
+    },
+    {
+      method: 'PUT',
+      path: '/images/update-with-cloudflare/:id',
+      handler: 'api::image.image.updateWithCloudflare',
+      config: {
+        policies: [],
+        middlewares: [],
+      },
     }
   ],
 };

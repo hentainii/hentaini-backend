@@ -345,5 +345,44 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
     } catch (error) {
       throw new Error(`Failed to create image: ${error.message}`);
     }
+  },
+
+  // Actualizar imagen con subida automática a Cloudflare (siempre mantiene local como fallback)
+  async updateImageWithCloudflare(imageId, imageData) {
+    try {
+      // Primero actualizar la imagen en la base de datos (esto ya la guarda localmente)
+      const updatedImage = await strapi.entityService.update('api::image.image', imageId, {
+        data: imageData
+      });
+      
+      const image = await strapi.entityService.findOne('api::image.image', imageId);
+      
+      // La imagen ya está actualizada localmente, ahora intentar subirla también a Cloudflare
+      if (image.path) {
+        try {
+          const fullUrl = `${process.env.STRAPI_CDN_ENDPOINT}${image.path}`;
+          console.log(fullUrl)
+          const cloudflareResult = await this.uploadToCloudflare(fullUrl);
+          
+          // Actualizar la imagen con los datos de Cloudflare (manteniendo el path local)
+          const finalImage = await strapi.entityService.update('api::image.image', imageId, {
+            data: {
+              cf_path: cloudflareResult.cf_path,
+              cloudflare_id: cloudflareResult.cloudflare_id
+            }
+          });
+          
+          strapi.log.info(`Image ${imageId} updated successfully to both local and Cloudflare`);
+          return { ...finalImage, cloudflare_uploaded: true };
+        } catch (cloudflareError) {
+          strapi.log.warn(`Image ${imageId} updated locally but failed to upload to Cloudflare: ${cloudflareError.message}`);
+          return { ...image, cloudflare_uploaded: false, cloudflare_error: cloudflareError.message };
+        }
+      }
+      
+      return { ...image, cloudflare_uploaded: false };
+    } catch (error) {
+      throw new Error(`Failed to update image: ${error.message}`);
+    }
   }
 }));
