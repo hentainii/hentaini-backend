@@ -116,11 +116,11 @@ module.exports = {
       segmentTime: 20, // 20 segundos por segmento
       videoCodec: 'libx264',
       audioCodec: 'aac',
-      preset: 'veryfast'
+      preset: 'faster'
     };
 
     // Ajustar calidad fija
-    settings.videoBitrate = '1200k';
+    settings.videoBitrate = '1400k';
     settings.audioBitrate = '96k';
 
     return settings;
