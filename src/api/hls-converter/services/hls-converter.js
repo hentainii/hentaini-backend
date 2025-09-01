@@ -136,9 +136,9 @@ module.exports = {
     return {
       args: [
         '-i', inputPath,
-        '-c:v', settings.videoCodec,
+        '-c:v', 'copy',
         '-b:v', settings.videoBitrate,
-        '-c:a', settings.audioCodec,
+        '-c:a', 'copy',
         '-b:a', settings.audioBitrate,
         '-preset', settings.preset,
         '-hls_time', settings.segmentTime.toString(),
