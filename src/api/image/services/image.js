@@ -37,7 +37,7 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
         path: { $notNull: true }
       }
     });
-    const failedImages = await strapi.entityService.count('api::image.image', {
+    const failedImages = await strapi.entityService.count('api::image-migration-stat.image-migration-stat', {
       filters: {
         migration_status: 'failed'
       }
@@ -70,11 +70,12 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
 
     if (status === 'pending') {
       filters.cf_path = { $null: true };
-      filters.migration_status = { $ne: 'failed' };
     } else if (status === 'migrated') {
       filters.cf_path = { $notNull: true };
     } else if (status === 'failed') {
-      filters.migration_status = 'failed';
+      filters.migration_stats = {
+        migration_status: 'failed'
+      };
     } else {
       // Por defecto, mostrar solo pendientes
       filters.cf_path = { $null: true };
@@ -86,7 +87,7 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
         start: offset,
         limit,
         sort: { id: 'desc' },
-        populate: ['series', 'episodes']
+        populate: ['series', 'episodes', 'migration_stats']
       }),
       strapi.entityService.count('api::image.image', { filters })
     ]);
@@ -107,6 +108,13 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
 
   async uploadToCloudflare(imageUrl) {
     try {
+      // Validar que la URL de la imagen sea válida
+      if (!imageUrl) {
+        throw new Error('Image URL is required');
+      }
+
+      strapi.log.info(`Attempting to upload image to Cloudflare: ${imageUrl}`);
+
       const formData = new FormData();
       formData.append('url', imageUrl);
 
@@ -121,20 +129,36 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
         }
       );
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      strapi.log.info('Cloudflare API response:', JSON.stringify(data, null, 2));
 
-      console.log(data)
+      if (data.success && data.result) {
+        // Verificar que tenemos los datos necesarios
+        if (!data.result.variants || data.result.variants.length === 0) {
+          throw new Error('No variants returned from Cloudflare');
+        }
+        
+        if (!data.result.id) {
+          throw new Error('No ID returned from Cloudflare');
+        }
 
-      if (data.success) {
-        return {
-          cf_path: data.result.variants[0],
-          cloudflare_id: data.result.id
+        const result = {
+          cf_path: data.result.variants[0]
         };
+
+        strapi.log.info(`Successfully uploaded to Cloudflare. Path: ${result.cf_path}`);
+        return result;
       } else {
-        throw new Error(`Cloudflare upload failed: ${data.errors?.[0]?.message || 'Unknown error'}`);
+        const errorMessage = data.errors?.[0]?.message || 'Unknown error from Cloudflare API';
+        strapi.log.error('Cloudflare upload failed:', errorMessage);
+        throw new Error(`Cloudflare upload failed: ${errorMessage}`);
       }
     } catch (error) {
-      console.error('Error uploading to Cloudflare:', error.message);
+      strapi.log.error('Error uploading to Cloudflare:', error.message);
       throw error;
     }
   },
@@ -161,12 +185,31 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
       // Actualizar imagen en base de datos
       await strapi.entityService.update('api::image.image', imageId, {
         data: {
-          cf_path: result.cf_path,
-          cloudflare_id: result.cloudflare_id,
-          migration_status: 'completed',
-          migrated_at: new Date()
+          cf_path: result.cf_path
         }
       });
+
+      // Crear o actualizar estadísticas de migración
+      const existingStats = await strapi.entityService.findMany('api::image-migration-stat.image-migration-stat', {
+        filters: { image: imageId }
+      });
+
+      if (existingStats.length > 0) {
+        await strapi.entityService.update('api::image-migration-stat.image-migration-stat', existingStats[0].id, {
+          data: {
+            migration_status: 'completed',
+            migrated_at: new Date()
+          }
+        });
+      } else {
+        await strapi.entityService.create('api::image-migration-stat.image-migration-stat', {
+          data: {
+            image: imageId,
+            migration_status: 'completed',
+            migrated_at: new Date()
+          }
+        });
+      }
 
       return {
         success: true,
@@ -174,14 +217,31 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
         message: 'Image migrated successfully'
       };
     } catch (error) {
-      // Marcar como fallida
-      await strapi.entityService.update('api::image.image', imageId, {
-        data: {
-          migration_status: 'failed',
-          migration_error: error.message,
-          last_attempt_at: new Date()
-        }
+      // Marcar como fallida en las estadísticas de migración
+      const existingStats = await strapi.entityService.findMany('api::image-migration-stat.image-migration-stat', {
+        filters: { image: imageId }
       });
+
+      if (existingStats.length > 0) {
+        await strapi.entityService.update('api::image-migration-stat.image-migration-stat', existingStats[0].id, {
+          data: {
+            migration_status: 'failed',
+            migration_error: error.message,
+            last_attempt_at: new Date(),
+            retry_count: (existingStats[0].retry_count || 0) + 1
+          }
+        });
+      } else {
+        await strapi.entityService.create('api::image-migration-stat.image-migration-stat', {
+          data: {
+            image: imageId,
+            migration_status: 'failed',
+            migration_error: error.message,
+            last_attempt_at: new Date(),
+            retry_count: 1
+          }
+        });
+      }
       
       throw error;
      }
@@ -247,9 +307,19 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
     try {
       while (this.migrationProcess.isRunning && !this.migrationProcess.isPaused) {
         // Obtener siguiente lote de imágenes
-        const filters = this.migrationProcess.retryFailedOnly 
-          ? { migration_status: 'failed', path: { $notNull: true } }
-          : { cf_path: { $null: true }, path: { $notNull: true }, migration_status: { $ne: 'failed' } };
+        let filters;
+        if (this.migrationProcess.retryFailedOnly) {
+          // Para reintentos, buscar imágenes con estadísticas de migración fallidas
+          const failedStats = await strapi.entityService.findMany('api::image-migration-stat.image-migration-stat', {
+            filters: { migration_status: 'failed' },
+            populate: ['image']
+          });
+          const failedImageIds = failedStats.map(stat => stat.image.id);
+          filters = { id: { $in: failedImageIds }, path: { $notNull: true } };
+        } else {
+          // Para migración normal, buscar imágenes sin cf_path y sin estadísticas fallidas
+          filters = { cf_path: { $null: true }, path: { $notNull: true } };
+        }
         
         const images = await strapi.entityService.findMany('api::image.image', {
           filters,
@@ -328,8 +398,7 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
           // Actualizar la imagen con los datos de Cloudflare (manteniendo el path local)
           const updatedImage = await strapi.entityService.update('api::image.image', image.id, {
             data: {
-              cf_path: cloudflareResult.cf_path,
-              cloudflare_id: cloudflareResult.cloudflare_id
+              cf_path: cloudflareResult.cf_path
             }
           });
           
@@ -360,21 +429,71 @@ module.exports = createCoreService('api::image.image', ({ strapi }) => ({
       // La imagen ya está actualizada localmente, ahora intentar subirla también a Cloudflare
       if (image.path) {
         try {
+          // Construir la URL completa con la nueva imagen actualizada
           const fullUrl = `${process.env.STRAPI_CDN_ENDPOINT}${image.path}`;
-          console.log(fullUrl)
+          console.log('Uploading updated image to Cloudflare:', fullUrl);
+          
+          // Subir la nueva imagen a Cloudflare
           const cloudflareResult = await this.uploadToCloudflare(fullUrl);
           
           // Actualizar la imagen con los datos de Cloudflare (manteniendo el path local)
           const finalImage = await strapi.entityService.update('api::image.image', imageId, {
             data: {
-              cf_path: cloudflareResult.cf_path,
-              cloudflare_id: cloudflareResult.cloudflare_id
+              cf_path: cloudflareResult.cf_path
             }
           });
+
+          // Crear o actualizar estadísticas de migración
+          const existingStats = await strapi.entityService.findMany('api::image-migration-stat.image-migration-stat', {
+            filters: { image: imageId }
+          });
+
+          if (existingStats.length > 0) {
+            await strapi.entityService.update('api::image-migration-stat.image-migration-stat', existingStats[0].id, {
+              data: {
+                migration_status: 'completed',
+                migrated_at: new Date()
+              }
+            });
+          } else {
+            await strapi.entityService.create('api::image-migration-stat.image-migration-stat', {
+              data: {
+                image: imageId,
+                migration_status: 'completed',
+                migrated_at: new Date()
+              }
+            });
+          }
           
           strapi.log.info(`Image ${imageId} updated successfully to both local and Cloudflare`);
           return { ...finalImage, cloudflare_uploaded: true };
         } catch (cloudflareError) {
+          // Marcar como fallida en las estadísticas de migración
+          const existingStats = await strapi.entityService.findMany('api::image-migration-stat.image-migration-stat', {
+            filters: { image: imageId }
+          });
+
+          if (existingStats.length > 0) {
+            await strapi.entityService.update('api::image-migration-stat.image-migration-stat', existingStats[0].id, {
+              data: {
+                migration_status: 'failed',
+                migration_error: cloudflareError.message,
+                last_attempt_at: new Date(),
+                retry_count: (existingStats[0].retry_count || 0) + 1
+              }
+            });
+          } else {
+            await strapi.entityService.create('api::image-migration-stat.image-migration-stat', {
+              data: {
+                image: imageId,
+                migration_status: 'failed',
+                migration_error: cloudflareError.message,
+                last_attempt_at: new Date(),
+                retry_count: 1
+              }
+            });
+          }
+          
           strapi.log.warn(`Image ${imageId} updated locally but failed to upload to Cloudflare: ${cloudflareError.message}`);
           return { ...image, cloudflare_uploaded: false, cloudflare_error: cloudflareError.message };
         }
