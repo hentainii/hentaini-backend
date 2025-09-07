@@ -131,8 +131,8 @@ module.exports = createCoreController('api::image.image', ({ strapi }) => ({
   async updateWithCloudflare(ctx) {
     try {
       const { id } = ctx.params;
-      const { data } = ctx.request.body;
-      const result = await strapi.service('api::image.image').updateImageWithCloudflare(id, data);
+      const { data, serieId } = ctx.request.body;
+      const result = await strapi.service('api::image.image').updateImageWithCloudflare(id, data, serieId);
       
       ctx.body = {
         success: true,
