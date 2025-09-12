@@ -13,13 +13,16 @@ module.exports = {
     const carouselSeries = await strapi.entityService.findMany('api::serie.serie', {
       populate: ['images', 'images.image_type', 'genreList', 'status'],
       filters: {
-        isFeatured: true,
+        featured: true,
       },
       sort: 'createdAt:desc',
       limit: 10,
     });
 
     const episodes = await strapi.entityService.findMany('api::episode.episode', {
+      filters: {
+        visible: true
+      },
       populate: ['image', 'image.image_type', 'serie', 'serie.status'],
       sort: 'createdAt:desc',
       limit: 20,
