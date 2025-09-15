@@ -1062,12 +1062,6 @@ export interface ApiImageImage extends Schema.CollectionType {
       'oneToMany',
       'api::episode.episode'
     >;
-    cf_path: Attribute.String;
-    migration_stats: Attribute.Relation<
-      'api::image.image',
-      'oneToOne',
-      'api::image-migration-stat.image-migration-stat'
-    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1079,49 +1073,6 @@ export interface ApiImageImage extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::image.image',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiImageMigrationStatImageMigrationStat
-  extends Schema.CollectionType {
-  collectionName: 'image_migration_stats';
-  info: {
-    singularName: 'image-migration-stat';
-    pluralName: 'image-migration-stats';
-    displayName: 'image-migration-stat';
-    description: 'Statistics and status tracking for image migration to Cloudflare';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    image: Attribute.Relation<
-      'api::image-migration-stat.image-migration-stat',
-      'oneToOne',
-      'api::image.image'
-    >;
-    migration_status: Attribute.Enumeration<
-      ['pending', 'completed', 'failed']
-    > &
-      Attribute.DefaultTo<'pending'>;
-    migration_error: Attribute.Text;
-    migrated_at: Attribute.DateTime;
-    last_attempt_at: Attribute.DateTime;
-    retry_count: Attribute.Integer & Attribute.DefaultTo<0>;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::image-migration-stat.image-migration-stat',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::image-migration-stat.image-migration-stat',
       'oneToOne',
       'admin::user'
     > &
@@ -1752,7 +1703,6 @@ declare module '@strapi/types' {
       'api::favorite.favorite': ApiFavoriteFavorite;
       'api::genre.genre': ApiGenreGenre;
       'api::image.image': ApiImageImage;
-      'api::image-migration-stat.image-migration-stat': ApiImageMigrationStatImageMigrationStat;
       'api::image-type.image-type': ApiImageTypeImageType;
       'api::language.language': ApiLanguageLanguage;
       'api::player.player': ApiPlayerPlayer;

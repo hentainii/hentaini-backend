@@ -35,15 +35,6 @@
       "relation": "oneToMany",
       "target": "api::episode.episode",
       "mappedBy": "image"
-    },
-    "cf_path": {
-      "type": "string"
-    },
-    "migration_stats": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::image-migration-stat.image-migration-stat",
-      "mappedBy": "image"
     }
   }
 }
