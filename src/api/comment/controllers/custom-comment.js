@@ -19,12 +19,40 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
         return ctx.unauthorized('Debes estar autenticado para responder');
       }
 
-      if (!content || content.trim().length < 3) {
+      const trimmed = (content || '').trim();
+      if (!trimmed || trimmed.length < 3) {
         return ctx.badRequest('El contenido de la respuesta es requerido (mínimo 3 caracteres)');
       }
 
-      if (content.trim().length > 1000) {
+      if (trimmed.length > 1000) {
         return ctx.badRequest('El contenido no puede exceder 1000 caracteres');
+      }
+
+      // Bloquear URLs y enlaces en respuestas
+      const urlRegex = /(https?:\/\/|www\.)\S+|\b[a-z0-9.-]+\.[a-z]{2,}(?:\/\S*)?/i;
+      if (urlRegex.test(trimmed)) {
+        return ctx.badRequest('No se permiten enlaces ni URLs en las respuestas');
+      }
+
+      // Límite diario de 15 publicaciones (comentarios + respuestas)
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const endOfDay = new Date(startOfDay);
+      endOfDay.setDate(endOfDay.getDate() + 1);
+
+      const todayCount = await strapi.entityService.count('api::comment.comment', {
+        filters: {
+          author: userId,
+          is_deleted: false,
+          createdAt: {
+            $gte: startOfDay.toISOString(),
+            $lt: endOfDay.toISOString()
+          }
+        }
+      });
+      const DAILY_LIMIT = 10;
+      if (todayCount >= DAILY_LIMIT) {
+        return ctx.forbidden(`Has alcanzado el límite de ${DAILY_LIMIT} comentarios por día`);
       }
 
       // Verificar que el comentario padre existe
@@ -35,7 +63,7 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
 
       // Crear la respuesta
       const replyData = {
-        content: content.trim(),
+        content: trimmed,
         comment_type: parentComment.comment_type,
         content_id: parentComment.content_id,
         author: userId,
