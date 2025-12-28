@@ -3,31 +3,36 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
-  
+
   // Sobrescribir find para incluir conteo de respuestas
   async find(ctx) {
     const { query } = ctx;
 
-    const entity = await strapi.entityService.findMany('api::comment.comment', {
-      ...query,
-      populate: {
-        author: true,
-        reply: true,
-        liked_by: true,
-        ...query.populate
-      }
-    });
+    const [entries, count] = await Promise.all([
+      strapi.entityService.findMany('api::comment.comment', {
+        ...query,
+        populate: {
+          author: true,
+          reply: true,
+          liked_by: true,
+          ...query.populate
+        }
+      }),
+      strapi.entityService.count('api::comment.comment', {
+        filters: query.filters
+      })
+    ]);
 
     // Agregar conteo de respuestas a cada comentario
-    if (entity.data) {
-      for (const comment of entity.data) {
+    if (entries) {
+      for (const comment of entries) {
         const repliesCount = await strapi.entityService.count('api::comment.comment', {
           filters: {
             reply: comment.id,
             is_deleted: false
           }
         });
-        
+
         // Agregar el conteo según la estructura (con o sin attributes)
         if (comment.attributes) {
           comment.attributes.repliesCount = repliesCount;
@@ -37,8 +42,20 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
       }
     }
 
-    const sanitizedEntity = await this.sanitizeOutput(entity, ctx);
-    return this.transformResponse(sanitizedEntity);
+    const sanitizedEntity = await this.sanitizeOutput(entries, ctx);
+
+    // Construct pagination metadata
+    const page = Number(query.pagination?.page) || 1;
+    const pageSize = Number(query.pagination?.pageSize) || 25;
+
+    return this.transformResponse(sanitizedEntity, {
+      pagination: {
+        page,
+        pageSize,
+        pageCount: Math.ceil(count / pageSize),
+        total: count
+      }
+    });
   },
 
   // Sobrescribir create para manejar notificaciones (opcional)
