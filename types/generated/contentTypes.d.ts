@@ -888,6 +888,7 @@ export interface ApiCommentComment extends Schema.CollectionType {
       'manyToOne',
       'api::comment.comment'
     >;
+    image: Attribute.Media<'images'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
