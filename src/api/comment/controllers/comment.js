@@ -135,6 +135,13 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
 
       // Límite de imágenes por hora (10 por hora)
       if (hasImage) {
+        // Validación de peso (5MB)
+        const imageFile = files.image || files['files.image'];
+        const MAX_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+        if (imageFile.size > MAX_SIZE) {
+           return ctx.badRequest('La imagen no puede exceder los 5MB');
+        }
+
         const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
         const hourlyImageCount = await strapi.entityService.count('api::comment.comment', {

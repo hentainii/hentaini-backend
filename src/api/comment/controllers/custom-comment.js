@@ -11,17 +11,52 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
   async createReply(ctx) {
     try {
       const { id: parentId } = ctx.params;
-      const { content } = ctx.request.body;
       const userId = ctx.state.user?.id;
+      
+      // Manejar multipart/form-data vs JSON
+      let requestBody = ctx.request.body; // En JSON es todo el body, en multipart es body.data (string o objeto) + files
+      
+      let content;
+      let files = ctx.request.files;
+
+      if (ctx.is('multipart')) {
+        let parsedData = requestBody.data;
+        if (typeof parsedData === 'string') {
+          try {
+            parsedData = JSON.parse(parsedData);
+          } catch (e) {
+            return ctx.badRequest('Datos inválidos');
+          }
+        }
+        content = parsedData?.content;
+        requestBody = parsedData;
+      } else {
+        content = requestBody.content;
+      }
 
       // Validaciones
       if (!userId) {
         return ctx.unauthorized('Debes estar autenticado para responder');
       }
 
+      // Check for image
+      const hasImage = files && (files.image || files['files.image']);
+
+      if (hasImage) {
+        // Validación de peso (5MB)
+        const imageFile = files.image || files['files.image'];
+        const MAX_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+        if (imageFile.size > MAX_SIZE) {
+           return ctx.badRequest('La imagen no puede exceder los 5MB');
+        }
+      }
+
       const trimmed = (content || '').trim();
-      if (!trimmed || trimmed.length < 3) {
-        return ctx.badRequest('El contenido de la respuesta es requerido (mínimo 3 caracteres)');
+      
+      if (!hasImage) {
+        if (!trimmed || trimmed.length < 3) {
+          return ctx.badRequest('El contenido de la respuesta es requerido (mínimo 3 caracteres)');
+        }
       }
 
       if (trimmed.length > 1000) {
@@ -30,7 +65,7 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
 
       // Bloquear URLs y enlaces en respuestas
       const urlRegex = /(https?:\/\/|www\.)\S+|\b[a-z0-9.-]+\.[a-z]{2,}(?:\/\S*)?/i;
-      if (urlRegex.test(trimmed)) {
+      if (trimmed && urlRegex.test(trimmed)) {
         return ctx.badRequest('No se permiten enlaces ni URLs en las respuestas');
       }
 
@@ -50,7 +85,7 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
           }
         }
       });
-      const DAILY_LIMIT = 10;
+      const DAILY_LIMIT = 15; // Corregido a 15 para consistencia
       if (todayCount >= DAILY_LIMIT) {
         return ctx.forbidden(`Has alcanzado el límite de ${DAILY_LIMIT} comentarios por día`);
       }
@@ -74,14 +109,33 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
         publishedAt: new Date()
       };
 
-      const reply = await strapi.entityService.create('api::comment.comment', {
+      // Preparar argumentos para create
+      const createArgs = {
         data: replyData,
         populate: {
           author: true,
           reply: true,
-          liked_by: true
+          liked_by: true,
+          image: true
         }
-      });
+      };
+
+      if (hasImage) {
+         // Ajustar la estructura de archivos para strapi entity service
+         // Si es multipart, Strapi suele esperar los files en un objeto separado 'files'
+         // donde la key coincide con el nombre del campo en el modelo ('image')
+         // Si hasImage es el file object, lo asignamos.
+         
+         // Nota: En Core Controller 'create', Strapi maneja esto automáticamente si pasamos ctx.
+         // Aquí usamos entityService, que requiere pasar 'files' explícitamente.
+         // 'files' debe ser un objeto { field: file }
+         
+         createArgs.files = {
+            image: hasImage // hasImage contiene el file object
+         };
+      }
+
+      const reply = await strapi.entityService.create('api::comment.comment', createArgs);
 
       ctx.send({
         data: reply,
@@ -119,7 +173,8 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
         },
         populate: {
           author: true,
-          liked_by: true
+          liked_by: true,
+          image: true
         },
         sort: { createdAt: 'asc' },
         pagination: {
