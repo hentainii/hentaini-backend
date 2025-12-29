@@ -91,7 +91,9 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
       }
 
       // Verificar que el comentario padre existe
-      const parentComment = await strapi.entityService.findOne('api::comment.comment', parentId);
+      const parentComment = await strapi.entityService.findOne('api::comment.comment', parentId, {
+        populate: ['author']
+      });
       if (!parentComment) {
         return ctx.notFound('Comentario padre no encontrado');
       }
@@ -136,6 +138,26 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
       }
 
       const reply = await strapi.entityService.create('api::comment.comment', createArgs);
+
+      // --- Lógica de Notificación ---
+      try {
+        if (parentComment.author && parentComment.author.id !== userId) {
+            strapi.log.info(`Creating notification for user ${parentComment.author.id} from user ${userId}`);
+            await strapi.entityService.create('api::notification.notification', {
+              data: {
+                user: parentComment.author.id,
+                comment: reply.id,
+                sender: userId,
+                type: 'reply',
+                read: false,
+                publishedAt: new Date()
+              }
+            });
+        }
+      } catch (notifError) {
+        strapi.log.error('Error creating notification:', notifError);
+      }
+      // -----------------------------
 
       ctx.send({
         data: reply,

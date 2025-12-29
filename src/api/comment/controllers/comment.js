@@ -189,6 +189,47 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
       }
 
       const response = await super.create(ctx);
+
+      // Lógica de Notificación: Si es una respuesta a otro comentario
+      strapi.log.info('Checking for notification trigger. Has reply?', !!requestData.reply); 
+
+      if (requestData.reply) {
+        try {
+          strapi.log.info('Fetching parent comment:', requestData.reply);
+          // Obtener el comentario padre para saber el autor
+          const parentComment = await strapi.entityService.findOne('api::comment.comment', requestData.reply, {
+            populate: ['author']
+          });
+          
+          strapi.log.info('Parent comment found:', parentComment ? parentComment.id : 'null');
+
+          // Si existe el padre y el autor es distinto al usuario actual (no auto-notificar)
+          if (parentComment && parentComment.author) {
+             strapi.log.info('Parent Author ID:', parentComment.author.id, 'Current User ID:', userId);
+             
+             if (parentComment.author.id !== userId) {
+                strapi.log.info('Creating notification for user', parentComment.author.id);
+                await strapi.entityService.create('api::notification.notification', {
+                  data: {
+                    user: parentComment.author.id, // El dueño del comentario original recibe la notif
+                    comment: response.data.id,     // El nuevo comentario (la respuesta)
+                    sender: userId,                // Quien respondió
+                    type: 'reply',
+                    read: false,
+                    publishedAt: new Date()        // Publicar inmediatamente
+                  }
+                });
+                strapi.log.info('Notification created successfully');
+             } else {
+                 strapi.log.info('Skipping notification: Author is same as replier');
+             }
+          }
+        } catch (notifError) {
+          strapi.log.error('Error creating notification:', notifError);
+          // No fallamos el request principal si falla la notificación
+        }
+      }
+
       return response;
     } catch (error) {
       strapi.log.error('Error creando comentario:', error);

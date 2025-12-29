@@ -1151,6 +1151,52 @@ export interface ApiLanguageLanguage extends Schema.CollectionType {
   };
 }
 
+export interface ApiNotificationNotification extends Schema.CollectionType {
+  collectionName: 'notifications';
+  info: {
+    singularName: 'notification';
+    pluralName: 'notifications';
+    displayName: 'Notification';
+    description: 'System notifications for users';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    user: Attribute.Relation<
+      'api::notification.notification',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    comment: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'api::comment.comment'
+    >;
+    read: Attribute.Boolean & Attribute.DefaultTo<false>;
+    type: Attribute.String & Attribute.DefaultTo<'reply'>;
+    sender: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPlayerPlayer extends Schema.CollectionType {
   collectionName: 'players';
   info: {
@@ -1706,6 +1752,7 @@ declare module '@strapi/types' {
       'api::image.image': ApiImageImage;
       'api::image-type.image-type': ApiImageTypeImageType;
       'api::language.language': ApiLanguageLanguage;
+      'api::notification.notification': ApiNotificationNotification;
       'api::player.player': ApiPlayerPlayer;
       'api::producer.producer': ApiProducerProducer;
       'api::rating.rating': ApiRatingRating;
