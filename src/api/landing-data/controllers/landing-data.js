@@ -31,7 +31,7 @@ module.exports = {
     const series = await strapi.entityService.findMany('api::serie.serie', {
       populate: ['images', 'images.image_type', 'status'],
       sort: 'createdAt:desc',
-      limit: 25,
+      limit: 24,
     });
 
     const results = {
